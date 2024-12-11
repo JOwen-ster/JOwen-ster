@@ -3,6 +3,4 @@
 - 💞️ I’m looking to collaborate on algorithms and backends
 - 📫 Reach me via Discord `typos.`
 
-<div>
-<img alt="Top langs" src="https://github-readme-stats.vercel.app/api/top-langs/?username=MaksymRudnyi&&langs_count=5&theme=synthwave"/>
-</div>
+[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=JOwen-ster&theme=radical)](https://github.com/anuraghazra/github-readme-stats)
