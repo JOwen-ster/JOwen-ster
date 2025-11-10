@@ -6,22 +6,10 @@
 
 set -e
 
-echo ">>> Updating system..."
-sudo apt update
-sudo apt full-upgrade -y
-
-echo ">>> Installing LXQt desktop and display manager (sddm)..."
-sudo apt install -y lxqt sddm
-
-echo ">>> Setting SDDM as default display manager..."
-sudo debconf-set-selections <<< "sddm shared/default-x-display-manager select sddm"
-
 echo ">>> Installing KDE Breeze themes and Qt components..."
 sudo apt install -y \
     breeze-icon-theme \
     kde-style-breeze \
-    qml-module-org-kde-kquickcontrols2 \
-    qml-module-org-kde-kirigami2 \
     qt5-style-plugins \
     openbox obconf
 
