@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>install-lxqt-kde.sh — HTML Download</title>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 24px; background:#0f1720; color:#e6eef8; }
+    h1 { font-size: 20px; margin-bottom: 8px; }
+    p { margin-top: 0; color:#a8bacd }
+    textarea { width:100%; height:520px; background:#071028; color:#e6eef8; border:1px solid #1f3446; padding:12px; font-family: "Fira Code", monospace; font-size:13px; white-space:pre; }
+    .controls { margin-top:12px; display:flex; gap:8px; }
+    button { background:#0ea5a0; border:none; padding:8px 12px; color:#032023; border-radius:8px; cursor:pointer; font-weight:600 }
+    button.secondary { background:#1e293b; color:#e6eef8; border:1px solid #344154 }
+    .note { margin-top:12px; color:#9fb0c8; font-size:13px }
+  </style>
+</head>
+<body>
+  <h1>install-lxqt-kde.sh</h1>
+  <p>Script to set up Raspberry Pi OS Lite → LXQt (KDE-style) optimized for Raspberry Pi 3B.</p>
+
+  <textarea id="scriptContent" readonly>
+#!/bin/bash
+# --------------------------------------------------------
+# Raspberry Pi OS Lite -> LXQt (KDE-style) setup script
+# Optimized for Raspberry Pi 3B
+# --------------------------------------------------------
+
+set -e
+
+echo ">>> Updating system..."
+sudo apt update
+sudo apt full-upgrade -y
+
+echo ">>> Installing LXQt desktop and display manager (sddm)..."
+sudo apt install -y lxqt sddm
+
+echo ">>> Setting SDDM as default display manager..."
+sudo debconf-set-selections <<< "sddm shared/default-x-display-manager select sddm"
+
+echo ">>> Installing KDE Breeze themes and Qt components..."
+sudo apt install -y \
+    breeze-icon-theme \
+    kde-style-breeze \
+    qml-module-org-kde-kquickcontrols2 \
+    qml-module-org-kde-kirigami2 \
+    qt5-style-plugins \
+    openbox obconf
+
+echo ">>> Installing performance and quality-of-life tools..."
+sudo apt install -y zram-tools lightdm-gtk-greeter-settings lxappearance
+
+echo ">>> Configuring zram swap..."
+sudo sed -i 's/# ALGO=lz4/ALGO=lz4/' /etc/default/zramswap || true
+sudo systemctl enable zramswap.service
+
+echo ">>> Disabling unneeded background services..."
+sudo systemctl disable --now bluetooth.service || true
+sudo systemctl disable --now ModemManager.service || true
+sudo systemctl disable --now triggerhappy.service || true
+
+echo ">>> Applying LXQt KDE-style appearance..."
+mkdir -p ~/.config/lxqt
+cat <<EOF > ~/.config/lxqt/session.conf
+[General]
+window_manager=openbox
+icon_theme=breeze
+theme=Breeze
+EOF
+
+echo ">>> Setting Openbox theme to Breeze (if available)..."
+mkdir -p ~/.config/openbox
+cat <<EOF > ~/.config/openbox/rc.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_config>
+  <theme>
+    <name>Breeze</name>
+    <titleLayout>NLIMC</titleLayout>
+  </theme>
+</openbox_config>
+EOF
+
+echo ">>> All done!"
+sudo reboot
+  </textarea>
+
+  <div class="controls">
+    <button id="downloadBtn">Download script (.sh)</button>
+    <button id="copyBtn" class="secondary">Copy to clipboard</button>
+  </div>
+
+  <p class="note">Tip: Save this file to your Pi and run <code>chmod +x install-lxqt-kde.sh && sudo ./install-lxqt-kde.sh</code></p>
+
+  <script>
+    const downloadBtn = document.getElementById('downloadBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const txt = document.getElementById('scriptContent');
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([txt.value], { type: 'text/x-sh' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'install-lxqt-kde.sh';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(txt.value);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => copyBtn.textContent = 'Copy to clipboard', 1600);
+      } catch (e) {
+        alert('Copy failed — select the text and press Ctrl+C.');
+      }
+    });
+  </script>
+</body>
+</html>
